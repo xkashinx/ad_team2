@@ -16,7 +16,7 @@ typedef struct
 
 std::vector<Point> rightWall,leftWall;
 ros::Publisher pub,pubError,pub2Python;
-
+double prevSpeed = 0.0;
 
 Point convertCoord(double range,int index)
 {
@@ -146,22 +146,32 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	
 	
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
-
-	// open lastSpeed to read previous pid_error.pid_vel
-	/**
-	float lastSpeed;
-	std::string str;
-	std::ifstream infile("lastSpeed.txt");
-	if (infile.is_open()) {
-		getline(infile, str);		
-		lastSpeed = (float)atof(str.c_str());
+	double p_error = abs(pid_error.pid_error);
+	if (prevSpeed < 20) {
+		prevSpeed += 0.5;
+	} else if (prevSpeed < 40) {
+		if (p_error < 5)
+			prevSpeed += 0.5;
+	} else if (prevSpeed < 100) {
+		if (p_error < 1)
+			prevSpeed += 0.5;
+		else if (p_error < 5)
+			prevSpeed += 0.25;
+		else
+			prevSpeed -= 0.5;
+	} else if (prevSpeed < 200) {
+		if (p_error < 1)
+			prevSpeed += 0.25;
+		else if (p_error < 2.5)
+			prevSpeed -= 0.25;
+		else
+			prevSpeed -= 0.75;
+	} else {
+		prevSpeed -= 0.5;
 	}
-	infile.close();
-	remove("lastSpeed.txt");	
-	**/
-
-	pid_error.pid_vel = 50;
-	if (pid_error.pid_vel<50) pid_error.pid_vel+=5;
+	pid_error.pid_vel = prevSpeed;
+	// pid_error.pid_vel = 50;
+	// if (pid_error.pid_vel<50) pid_error.pid_vel+=5;
 
 	pub.publish(side);
 	pubError.publish(error);
