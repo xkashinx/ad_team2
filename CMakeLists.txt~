@@ -138,7 +138,6 @@ include_directories(
 ## Declare a C++ executable
 add_executable(sideWayFinder src/sideWayFinder.cpp)
 add_executable(talkerToSim src/talkerToSim.cpp)
-add_executable(spinTest src/spinTest.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -148,7 +147,7 @@ add_executable(spinTest src/spinTest.cpp)
 
 target_link_libraries(sideWayFinder ${catkin_LIBRARIES})
 target_link_libraries(talkerToSim ${catkin_LIBRARIES})
-target_link_libraries(spinTest ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
