@@ -149,9 +149,9 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	double p_error = abs(pid_error.pid_error);
 	if (prevSpeed < 20) {
 		prevSpeed += 0.5;
-	} else if (prevSpeed < 40) {
+	} else if (prevSpeed < 60) {
 		if (p_error < 5)
-			prevSpeed += 0.5;
+			prevSpeed += 0.25;
 	} else if (prevSpeed < 100) {
 		if (p_error < 1)
 			prevSpeed += 0.5;
@@ -170,8 +170,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		prevSpeed -= 0.5;
 	}
 	pid_error.pid_vel = prevSpeed;
-	// pid_error.pid_vel = 50;
-	// if (pid_error.pid_vel<50) pid_error.pid_vel+=5;
+	
 
 	pub.publish(side);
 	pubError.publish(error);
