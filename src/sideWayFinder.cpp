@@ -17,6 +17,8 @@ typedef struct
 std::vector<Point> rightWall,leftWall;
 ros::Publisher pub,pubError,pub2Python;
 double prevSpeed = 0.0;
+double prevMinRange = 100;
+int turnStage = 0;
 
 Point convertCoord(double range,int index)
 {
@@ -183,27 +185,31 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		turn = 0; // default no turn or stop the turn mode
 		goto skip;
 	}
-	for(int i = 0; i < 1080; i++) {
-		if (indexMax == -1 && abs(msg->ranges[i] - prevRange) >1.8 * ratio) {
-			if (abs(msg->ranges[i] - prevRange) > 1.8 * ratio) {
-				if ((i - indexMax) > (indexMax - indexJB))
-					turn = -1; // left turn found
-				else 
-					turn = 1; // right turn found because no jump in left 
-			}
-			indexJB = i;
-		}
 
-		// find the index of range_max
+	// if expecting turn
+	for(int i = 0; i < 1080; i++) {
+		// if jump in rage 
+		if (abs(msg->ranges[i] - prevRange) > 1.8*ratio)
+			// if index for max_range have not found yet
+			if (indexMax == -1) {
+				indexJB = i; // set index of closest jump before max_range
+			} else { // if index of max_range already found, decide right or left turn
+				if ( i-indexMax > indexMax-indexJB )
+					turn = 1; // right turn
+				else
+					turn = -1; // left turn
+			}
+
+		// index of range_max found
 		if(abs(msg->ranges[i] - max_range) < 0.0001)
 			indexMax =  i;		
  	}
 
  	skip:
-	if (turn == 1) // right turn
-		error.dist+=0.4*ratio;
-	else if (turn == -1) // left turn
-		error.dist-=0.4*ratio;
+	if (turn == 1) 
+		error.dist-=0.4*ratio; // right turn, shift left --> error = pos-(mid+0.4m)
+	else if (turn == -1) 
+		error.dist+=0.4*ratio; // left turn, shift right --> error = pos-(mid-0.4m)
 
 	ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
 	ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
