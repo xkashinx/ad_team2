@@ -42,7 +42,7 @@ if __name__ == '__main__':
 	global kd
 	global vel_input
 	print("Listening to error for PID")
-	kp = 2#3
+	kp = 1.8#3
 	kd = 0#0.05
 	vel_input = 30
 

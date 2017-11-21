@@ -57,6 +57,32 @@ void calculateAngleDistance(double A,double B,double &ang, double &dist)
 	ang = ang*180/3.14159265;
 }
 
+/*
+int DeterminRightOrLeftTurn(const sensor_msgs::LaserScan::ConstPtr& msg) {
+	int indexJB = 0;
+	int indexMax=-1;
+	double prevRange = 0.0;
+	if (msg->range_max > 5 * ratio)
+		return 0; // default no turn or stop the turn mode
+	for(int i = 0; i < msg->range.size(); i++) {
+		if (indexMax == -1 && abs(msg->range[i] - prevRange) >1.8 * ratio) {
+			if (abs(msg->range[i] - prevRange) > 1.8 * ratio) {
+				if ((i - indexMax) > (indexMax - indexJB))
+					turn = -1; // left turn found
+				else 
+					turn = 1; // right turn found because no jump in left 
+				return turn;
+			}
+			indexJB = i;
+		}
+
+		// find the index of range_max
+		if(abs(msg->range[i] - msg->range_max) < 0.0001)
+			indexMax =  i;		
+ 	}
+}
+*/
+
 void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
 //	ROS_INFO("%d",sizeof(msg->ranges));
@@ -141,36 +167,64 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		error.ang  =  0;//invalid
 		error.dist =  0;
 	}
+
+	// Added by Tema 2 Start
+	int turn = 0;
+	int indexJB = 0;
+	int indexMax=-1;
+	double prevRange = 0.0;
+	double max_range = 0.0;
+	// find max_range
+	for ( int i = 0; i < 1080; i++ )
+		if (msg->ranges[i] > max_range)
+			max_range = msg->ranges[i];
+
+	if (max_range > 6.7 * ratio) {
+		turn = 0; // default no turn or stop the turn mode
+		goto skip;
+	}
+	for(int i = 0; i < 1080; i++) {
+		if (indexMax == -1 && abs(msg->ranges[i] - prevRange) >1.8 * ratio) {
+			if (abs(msg->ranges[i] - prevRange) > 1.8 * ratio) {
+				if ((i - indexMax) > (indexMax - indexJB))
+					turn = -1; // left turn found
+				else 
+					turn = 1; // right turn found because no jump in left 
+			}
+			indexJB = i;
+		}
+
+		// find the index of range_max
+		if(abs(msg->ranges[i] - max_range) < 0.0001)
+			indexMax =  i;		
+ 	}
+
+ 	skip:
+	if (turn == 1) // right turn
+		error.dist+=0.4*ratio;
+	else if (turn == -1) // left turn
+		error.dist-=0.4*ratio;
+
 	ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
 	ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
 	
 	
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
-	if (prevSpeed < 20) {
-		prevSpeed += 0.5;
-	} else if (prevSpeed < 60) {
-		if (p_error < 5)
-			prevSpeed += 0.25;
-	} else if (prevSpeed < 100) {
-		if (p_error < 1)
-			prevSpeed += 0.5;
-		else if (p_error < 5)
-			prevSpeed += 0.25;
-		else
-			prevSpeed -= 0.5;
-	} else if (prevSpeed < 200) {
-		if (p_error < 1)
-			prevSpeed += 0.25;
-		else if (p_error < 2.5)
-			prevSpeed -= 0.25;
-		else
-			prevSpeed -= 0.75;
-	} else {
-		prevSpeed -= 0.5;
-	}
-	pid_error.pid_vel = prevSpeed;
 	
+	double target = 100/(1+p_error)+0;
+	if (target < 70) 
+		target = 70;
+	else if (target > 150)
+		target = 150;
+
+	double velError = target - prevSpeed;
+	int sign = 1;
+	if (velError < 0)
+		sign = -1;
+	prevSpeed += 0.05 * sign * sqrt(abs(velError));
+	pid_error.pid_vel = prevSpeed;
+	// Team 2 End
 
 	pub.publish(side);
 	pubError.publish(error);
@@ -183,6 +237,7 @@ int main(int argc, char ** argv)
 	ROS_INFO("Side Way Finder Start");
 	ros::NodeHandle rosHandle;
 	ros::Subscriber sub = rosHandle.subscribe("catvehicle/front_laser_points",100,callback);
+	//ros::Subscriber sub = rosHandle.subscribe("/scan",100,callback);
 	pub = rosHandle.advertise<control::sideWay>("control/sideWay",100);
 	pubError = rosHandle.advertise<control::angleDistanceError>("control/angleDistanceError",100);	
 	pub2Python = rosHandle.advertise<control::pid_input>("control/error",100);
