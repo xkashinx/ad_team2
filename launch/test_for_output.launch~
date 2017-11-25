@@ -1,6 +1,6 @@
 <launch>
 
-<include file="$(find catvehicle)/launch/catvehicle_test_route2.launch">
+<include file="$(find catvehicle)/launch/catvehicle_test_route.launch">
 	<arg name="paused" value="true"/>
 </include>
 <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>

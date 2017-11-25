@@ -4,7 +4,6 @@
 	<arg name="paused" value="true"/>
 </include>
 <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
-<node name="distFinder" pkg="control" type="sideWayFinder" output="log"/>
 <node name="pid_controller" pkg="control" type="pid_controller.py"/>
 <node name="talkerToSim" pkg="control" type="talkerToSim"/>
 
