@@ -146,7 +146,9 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		error.dist =  0;
 	}
 
-	// Added by Tema 2 Start
+	/**
+	** Team 2 START ----------------------------------------------
+	**/
 	int turn = 0;
 	int indexJB = 0;
 	int indexMax=-1;
@@ -212,7 +214,11 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		sign = -1;
 	prevSpeed += 0.05 * sign * sqrt(abs(velError));
 	pid_error.pid_vel = prevSpeed;
-	// Team 2 End
+
+	/**
+	* Team 2 End -------------------------------------------------------------
+	**/
+
 
 	pub.publish(side);
 	pubError.publish(error);
