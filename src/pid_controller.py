@@ -42,8 +42,8 @@ if __name__ == '__main__':
 	global kd
 	global vel_input
 	print("Listening to error for PID")
-	kp = 0.8#3
-	kd = 0.00#0.05
+	kp = 0.9#3
+	kd = 0.01#0.05
 	vel_input = 30
 
 	rospy.init_node('pid_controller', anonymous=True)

@@ -17,7 +17,7 @@ typedef struct
 std::vector<Point> rightWall,leftWall;
 ros::Publisher pub,pubError,pub2Python;
 double prevSpeed = 0.0;
-double prevMinRange = 100;
+double prevMinRange = 100*ratio;
 int turnStage = 0;
 
 Point convertCoord(double range,int index)
@@ -59,31 +59,7 @@ void calculateAngleDistance(double A,double B,double &ang, double &dist)
 	ang = ang*180/3.14159265;
 }
 
-/*
-int DeterminRightOrLeftTurn(const sensor_msgs::LaserScan::ConstPtr& msg) {
-	int indexJB = 0;
-	int indexMax=-1;
-	double prevRange = 0.0;
-	if (msg->range_max > 5 * ratio)
-		return 0; // default no turn or stop the turn mode
-	for(int i = 0; i < msg->range.size(); i++) {
-		if (indexMax == -1 && abs(msg->range[i] - prevRange) >1.8 * ratio) {
-			if (abs(msg->range[i] - prevRange) > 1.8 * ratio) {
-				if ((i - indexMax) > (indexMax - indexJB))
-					turn = -1; // left turn found
-				else 
-					turn = 1; // right turn found because no jump in left 
-				return turn;
-			}
-			indexJB = i;
-		}
 
-		// find the index of range_max
-		if(abs(msg->range[i] - msg->range_max) < 0.0001)
-			indexMax =  i;		
- 	}
-}
-*/
 
 void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
@@ -176,11 +152,15 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	int indexMax=-1;
 	double prevRange = 0.0;
 	double max_range = 0.0;
+	double min_range = 100.0*ratio;
 	// find max_range
-	for ( int i = 0; i < 1080; i++ )
-		if (msg->ranges[i] > max_range)
+	for ( int i = 0; i < 1080; i++ ) {
+		if (msg->ranges[i] > max_range) 
 			max_range = msg->ranges[i];
-
+		if (msg->ranges[i] < min_range)
+			min_range = msg->ranges[i];
+	}
+		
 	if (max_range > 6.7 * ratio) {
 		turn = 0; // default no turn or stop the turn mode
 		goto skip;
@@ -218,7 +198,9 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
 	
-	double target = 100/(1+p_error)+0;
+	double target = 110/(1+p_error)+0;
+	//double target = -70*log(p_error+0.5)+130;
+
 	if (target < 70) 
 		target = 70;
 	else if (target > 150)
