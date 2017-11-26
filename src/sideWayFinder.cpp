@@ -153,12 +153,17 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	int indexJB = 0;
 	int indexMax= -1;
 	int indexJA = 1081;
+	int foundJB = 0; // boolean to check if jump before max exists
+	int foundJA = 0; // boolean to check if jump after max exists
 	double prevRange = 0.0;
 	double max_range = 0.0;
 	double min_range = 100.0*ratio;
 	int rightGap = -1;
 	int leftGap = -1;
 	int gapDiff = 123456;
+
+	double maxRawAngle = -10000.0;
+	double maxAngle = -10000.0;
 
 	// find max_range
 	for ( int i = 0; i < 1080; i++ ) {
@@ -177,9 +182,11 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	// if expecting turn
 	for(int i = 0; i < 1080; i++) {
 		// index of range_max found
-		if(abs(msg->ranges[i] - max_range) < 0.0001) {
+		if(abs(msg->ranges[i] - max_range) < 0.0001 * ratio && abs(msg->ranges[i] - msg->ranges[i+1]) > 1.8*ratio) {
 			indexMax =  i;
+			break;
 		}
+		/**
 		// if jump in rage 
 		if (abs(msg->ranges[i] - prevRange) > 1.8*ratio) {
 			// if index for max_range have not found yet
@@ -195,8 +202,16 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 					turn = -1; // left turn
 				break;
 			}
-		}			
+		}	
+		*/		
  	}
+
+ 	maxRawAngle = indexMax * 270/1080.0 - 270/2.0;
+ 	maxAngle = maxRawAngle - error.ang;
+ 	if (maxAngle < 0)
+ 		turn = 1; // right
+ 	else
+ 		turn = -1; // left
 
  	skip:
 	if (turn == 1) 
@@ -207,8 +222,9 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
 	//ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
 	
-	ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\nindexJB = %i\nindexMax = %i\nindexJA = %i\n------------------\nTurn = %i\nrightGap = %i\nleftGap = %i\nleftGap - rightGap = %i", error.ang, error.dist, max_range/ratio, indexJB, indexMax, indexJA, turn, rightGap, leftGap, gapDiff);
-	
+	//ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\nindexJB = %i\nindexMax = %i\nindexJA = %i\n------------------\nTurn = %i\nrightGap = %i\nleftGap = %i\nleftGap - rightGap = %i", error.ang, error.dist, max_range/ratio, indexJB, indexMax, indexJA, turn, rightGap, leftGap, gapDiff);
+	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, maxRawAngle, maxAngle, turn);
+
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
 	
