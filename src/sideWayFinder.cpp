@@ -202,7 +202,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
 	//ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
 	
-	ROS_INFO("\n\n\n\n\n\n\nTurn = %i\nrightGap = %i\nleftGap = %i", turn, rightGap, leftGap);
+	ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\n------------------\nTurn = %i\nrightGap = %iiterations\nleftGap = %iiterations\nleftGap - rightGap = %iiterations", error.ang, error.dist, max_range/ratio, turn, rightGap, leftGap, leftGap-rightGap);
 	
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
