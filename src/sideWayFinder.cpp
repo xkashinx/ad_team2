@@ -151,10 +151,14 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	**/
 	int turn = 0;
 	int indexJB = 0;
-	int indexMax=-1;
+	int indexMax= -1;
+	int indexJA = 1081;
 	double prevRange = 0.0;
 	double max_range = 0.0;
 	double min_range = 100.0*ratio;
+	int rightGap = -1;
+	int leftGap = -1;
+	int gapDiff = 123456;
 
 	// find max_range
 	for ( int i = 0; i < 1080; i++ ) {
@@ -169,12 +173,13 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		goto skip;
 	}
 
-	int rightGap, leftGap;
+
 	// if expecting turn
 	for(int i = 0; i < 1080; i++) {
 		// index of range_max found
-		if(abs(msg->ranges[i] - max_range) < 0.0001)
+		if(abs(msg->ranges[i] - max_range) < 0.0001) {
 			indexMax =  i;
+		}
 		// if jump in rage 
 		if (abs(msg->ranges[i] - prevRange) > 1.8*ratio) {
 			// if index for max_range have not found yet
@@ -182,7 +187,8 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 				indexJB = i; // set index of closest jump before max_range
 			} else { // if index of max_range already found, decide right or left turn
 				rightGap = indexMax - indexJB;
-				leftGap = i-indexMax;
+				leftGap = indexJA - indexMax;
+				gapDiff = leftGap - rightGap;
 				if (leftGap != 0 && leftGap > rightGap )
 					turn = 1; // right turn
 				else
@@ -201,7 +207,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
 	//ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
 	
-	ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\n------------------\nTurn = %i\nrightGap = %i\nleftGap = %i\nleftGap - rightGap = %i", error.ang, error.dist, max_range/ratio, turn, rightGap, leftGap, leftGap-rightGap);
+	ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\nindexJB = %i\nindexMax = %i\nindexJA = %i\n------------------\nTurn = %i\nrightGap = %i\nleftGap = %i\nleftGap - rightGap = %i", error.ang, error.dist, max_range/ratio, indexJB, indexMax, indexJA, turn, rightGap, leftGap, gapDiff);
 	
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
