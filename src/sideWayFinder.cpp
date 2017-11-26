@@ -155,6 +155,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	double prevRange = 0.0;
 	double max_range = 0.0;
 	double min_range = 100.0*ratio;
+
 	// find max_range
 	for ( int i = 0; i < 1080; i++ ) {
 		if (msg->ranges[i] > max_range) 
@@ -171,8 +172,11 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	int rightGap, leftGap;
 	// if expecting turn
 	for(int i = 0; i < 1080; i++) {
+		// index of range_max found
+		if(abs(msg->ranges[i] - max_range) < 0.0001)
+			indexMax =  i;
 		// if jump in rage 
-		if (abs(msg->ranges[i] - prevRange) > 1.8*ratio)
+		if (abs(msg->ranges[i] - prevRange) > 1.8*ratio) {
 			// if index for max_range have not found yet
 			if (indexMax == -1) {
 				indexJB = i; // set index of closest jump before max_range
@@ -184,13 +188,8 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 				else
 					turn = -1; // left turn
 				break;
-				//ROS_INFO("rightGap = %i", rightGap);
-				//ROS_INFO("leftGap = %i", leftGap);
 			}
-
-		// index of range_max found
-		if(abs(msg->ranges[i] - max_range) < 0.0001)
-			indexMax =  i;		
+		}			
  	}
 
  	skip:
@@ -202,7 +201,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
 	//ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
 	
-	ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\n------------------\nTurn = %i\nrightGap = %iiterations\nleftGap = %iiterations\nleftGap - rightGap = %iiterations", error.ang, error.dist, max_range/ratio, turn, rightGap, leftGap, leftGap-rightGap);
+	ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\n------------------\nTurn = %i\nrightGap = %i\nleftGap = %i\nleftGap - rightGap = %i", error.ang, error.dist, max_range/ratio, turn, rightGap, leftGap, leftGap-rightGap);
 	
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
