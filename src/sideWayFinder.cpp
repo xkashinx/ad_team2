@@ -173,7 +173,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 			min_range = msg->ranges[i];
 	}
 		
-	if (max_range > 5 * ratio) {
+	if (max_range > 7.5 * ratio) {
 		turn = 0; // default no turn or stop the turn mode
 		goto skip;
 	}
