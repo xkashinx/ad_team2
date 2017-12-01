@@ -17,8 +17,11 @@ typedef struct
 std::vector<Point> rightWall,leftWall;
 ros::Publisher pub,pubError,pub2Python;
 double prevSpeed = 0.0;
-double prevMinRange = 100*ratio;
-int turnStage = 0;
+double prevSpeedSum = 0.0;
+int count = 0;
+double avgSpeed = 0.0;
+int isSim = 1;
+double speedFactor = 0.1;
 
 Point convertCoord(double range,int index)
 {
@@ -239,7 +242,11 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		velChange = velSign * 7*ratio/50;
 	prevSpeed += velChange;
 	pid_error.pid_vel = prevSpeed;
-	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\ntarget = %5.2lf(m/s)\nstd::max(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, target/ratio, 3*std::max(0.0, 10-max_range/ratio), velError/ratio, velChange*50/ratio, prevSpeed/ratio, maxRawAngle, maxAngle, turn);
+	prevSpeedSum += prevSpeed/ratio*speedFactor;
+	count++;
+	avgSpeed = prevSpeedSum / count;
+	double kph = 3.6*prevSpeed/ratio*speedFactor;
+	ROS_INFO("\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\nkm/hour = %5.2lf(km/h)\navgSpeed = %5.2lf(m/s)\ntarget = %5.2lf(m/s)\nmax(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, kph, avgSpeed, target/ratio*speedFactor, 3*std::max(0.0, 10-max_range/ratio)*speedFactor, velError/ratio*speedFactor, velChange*50/ratio*speedFactor, prevSpeed/ratio*speedFactor, maxRawAngle, maxAngle, turn);
 
 	/**
 	* Team 2 End -------------------------------------------------------------
