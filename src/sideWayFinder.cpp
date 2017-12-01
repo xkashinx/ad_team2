@@ -173,7 +173,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 			min_range = msg->ranges[i];
 	}
 		
-	if (max_range > 7.5 * ratio) {
+	if (max_range > 6.5 * ratio) {
 		turn = 0; // default no turn or stop the turn mode
 		goto skip;
 	}
@@ -225,7 +225,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	double target = 200/(1+p_error)+20;
 
 	if (turn == 0)
-		target = std::max(11.5*ratio, std::min(26*ratio/(0+abs(error.ang)) + 0, 22*ratio) - 2.5*std::max(0.0, 10-msg->ranges[540]/ratio)*ratio);
+		target = std::max(11.5*ratio, std::min(26*ratio/(0+abs(error.ang)) + 0, 26*ratio) - 3*std::max(0.0, 10-msg->ranges[540]/ratio)*ratio);
 	else
 		target = 11.5 * ratio;
 
@@ -239,7 +239,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		velChange = velSign * 7*ratio/50;
 	prevSpeed += velChange;
 	pid_error.pid_vel = prevSpeed;
-	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\ntarget = %5.2lf(m/s)\nstd::max(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, target/ratio, 2.5*std::max(0.0, 10-max_range/ratio), velError/ratio, velChange*50/ratio, prevSpeed/ratio, maxRawAngle, maxAngle, turn);
+	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\ntarget = %5.2lf(m/s)\nstd::max(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, target/ratio, 3*std::max(0.0, 10-max_range/ratio), velError/ratio, velChange*50/ratio, prevSpeed/ratio, maxRawAngle, maxAngle, turn);
 
 	/**
 	* Team 2 End -------------------------------------------------------------
