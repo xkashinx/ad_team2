@@ -242,7 +242,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	double velChange = 0.05 * sign * sqrt(abs(velError));
 	prevSpeed += velChange;
 	pid_error.pid_vel = prevSpeed;
-	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, velError/ratio, velChange/ratio,maxRawAngle, maxAngle, turn);
+	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, velError/ratio, velChange*50/ratio, prevSpeed/ratio, maxRawAngle, maxAngle, turn);
 
 	/**
 	* Team 2 End -------------------------------------------------------------
