@@ -227,13 +227,18 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
 	
-	double target = 110/(1+p_error)+20;
+	double target = 200/(1+p_error)+20;
 	//double target = -70*log(p_error+0.5)+130;
 
-	if (target < 70) 
-		target = 70;
-	else if (target > 150)
-		target = 150;
+	if (turn == 0)
+		target = 200.0/(0+abs(error.ang)) + 0;
+	else
+		target = 10 * ratio;
+
+	if (target < 10 * ratio) 
+		target = 10 * ratio;
+	else if (target > 18 * ratio)
+		target = 18 * ratio;
 
 	double velError = target - prevSpeed;
 	int sign = 1;
