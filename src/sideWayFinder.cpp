@@ -231,13 +231,9 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//double target = -70*log(p_error+0.5)+130;
 
 	if (turn == 0)
-		target = std::max(11*ratio, std::min(26*ratio/(0+abs(error.ang)) + 0, 22*ratio) - 2.5*std::max(0.0, 10-msg->ranges[540]/ratio)*ratio);
+		target = std::max(11.5*ratio, std::min(26*ratio/(0+abs(error.ang)) + 0, 22*ratio) - 2.5*std::max(0.0, 10-msg->ranges[540]/ratio)*ratio);
 	else
-		target = 11 * ratio;
-
-	
-	if (target > 22 * ratio)
-		target = 22 * ratio;
+		target = 11.5 * ratio;
 
 	double velError = target - prevSpeed;
 	int sign = 1;
