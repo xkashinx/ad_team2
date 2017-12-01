@@ -22,9 +22,9 @@ int count = 0;
 double avgSpeed = 0.0;
 int isSim = 1;
 double speedFactor = 0.752;
-double meterpsToCmd = 75.25;
-double maxMPS = 2.0;
-double minMPS = 1.2;
+double MPSToCmd = 75.25;
+double maxMPS = 2.5;
+double minMPS = 1.1;
 
 Point convertCoord(double range,int index)
 {
@@ -230,11 +230,12 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	
 	double target = 200/(1+p_error)+20;
 
+
 	// set target speed
 	if (turn == 0) // in straight line
-		target = std::max(minMPS*meterpsToCmd, std::min(maxMPS*meterpsToCmd/(0+0.2*abs(error.ang)) + 0, maxMPS*meterpsToCmd) - 0.3*std::max(0.0, 10-msg->ranges[540]/ratio)*meterpsToCmd);
+		target = std::max(minMPS*MPSToCmd, std::min(maxMPS*MPSToCmd/(0+0.2*abs(error.ang)) + 0, maxMPS*MPSToCmd) - 0.3*std::max(0.0, 10-msg->ranges[540]/ratio)*MPSToCmd);
 	else // in corner
-		target = minMPS * meterpsToCmd;
+		target = minMPS * MPSToCmd;
 
 	double velError = target - prevSpeed;
 	int sign = 1;
@@ -242,15 +243,15 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		sign = -1;
 	double velChange = velError;
 	int velSign = velChange > 0 ? 1: -1;
-	if (abs(velChange)*50/meterpsToCmd > 0.7)
-		velChange = velSign * 0.7*meterpsToCmd/50;
+	if (abs(velChange)*50/MPSToCmd > 0.7)
+		velChange = velSign * 0.7*MPSToCmd/50;
 	prevSpeed += velChange;
 	pid_error.pid_vel = prevSpeed;
-	prevSpeedSum += prevSpeed/meterpsToCmd;
+	prevSpeedSum += prevSpeed/MPSToCmd;
 	count++;
 	avgSpeed = prevSpeedSum / count;
-	double kph = 3.6*prevSpeed/meterpsToCmd;
-	ROS_INFO("\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\nkm/hour = %5.2lf(km/h)\navgSpeed = %5.2lf(m/s)\ntarget = %5.2lf(m/s)\nmax(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, kph, avgSpeed, target/meterpsToCmd, 0.3*std::max(0.0, 10-max_range/ratio), velError/meterpsToCmd, velChange*50/meterpsToCmd, prevSpeed/meterpsToCmd, maxRawAngle, maxAngle, turn);
+	double kph = 3.6*prevSpeed/MPSToCmd;
+	ROS_INFO("\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\nkm/hour = %5.2lf(km/h)\navgSpeed = %5.2lf(m/s)\ntarget = %5.2lf(m/s)\nmax(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, kph, avgSpeed, target/MPSToCmd, 0.3*std::max(0.0, 10-max_range/ratio), velError/MPSToCmd, velChange*50/MPSToCmd, prevSpeed/MPSToCmd, maxRawAngle, maxAngle, turn);
 
 	/**
 	* Team 2 End -------------------------------------------------------------
