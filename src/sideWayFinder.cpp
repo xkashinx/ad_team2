@@ -231,23 +231,24 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	//double target = -70*log(p_error+0.5)+130;
 
 	if (turn == 0)
-		target = 200.0/(0+abs(error.ang)) + 0;
+		target = 26*ratio/(0+abs(error.ang)) + 0 - 2*std::max(0.0, 10-max_range/ratio)*ratio;
 	else
-		target = 10 * ratio;
+		target = 12 * ratio;
 
 	if (target < 10 * ratio) 
 		target = 10 * ratio;
-	else if (target > 18 * ratio)
-		target = 18 * ratio;
+	else if (target > 22 * ratio)
+		target = 22 * ratio;
 
 	double velError = target - prevSpeed;
 	int sign = 1;
 	if (velError < 0)
 		sign = -1;
 	double velChange = 0.05 * sign * sqrt(abs(velError));
+	int velSign = velChange > 0 ? 1: -1;
 	prevSpeed += velChange;
 	pid_error.pid_vel = prevSpeed;
-	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, velError/ratio, velChange*50/ratio, prevSpeed/ratio, maxRawAngle, maxAngle, turn);
+	ROS_INFO("\n\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\ntarget = %5.2lf(m/s)\nstd::max(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, target/ratio, std::max(0.0, 10-max_range/ratio)*ratio, velError/ratio, velChange*50/ratio, prevSpeed/ratio, maxRawAngle, maxAngle, turn);
 
 	/**
 	* Team 2 End -------------------------------------------------------------
