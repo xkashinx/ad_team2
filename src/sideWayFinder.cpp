@@ -218,17 +218,11 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		error.dist-=0.4*ratio; // right turn, shift left --> error = pos-(mid+0.4m)
 	else if (turn == -1) 
 		error.dist+=0.4*ratio; // left turn, shift right --> error = pos-(mid-0.4m)
-
-	//ROS_INFO("La:%0.5lf Ra:%0.5lf Ld:%0.5lf Rd:%0.5lf",Lang,Rang,Ldist,Rdist);
-	//ROS_INFO("Ea:%0.5lf Ed:%0.5lf",error.ang,error.dist);
 	
-	//ROS_INFO("\n\n\nerror.ang = %5.2lf\nerror.dist = %5.2lf\nmax_range = %5.2lf\nindexJB = %i\nindexMax = %i\nindexJA = %i\n------------------\nTurn = %i\nrightGap = %i\nleftGap = %i\nleftGap - rightGap = %i", error.ang, error.dist, max_range/ratio, indexJB, indexMax, indexJA, turn, rightGap, leftGap, gapDiff);
-
 	pid_error.pid_error =(error.dist/ratio+error.ang/45*1.5)*100;
 	double p_error = abs(pid_error.pid_error);
 	
 	double target = 200/(1+p_error)+20;
-	//double target = -70*log(p_error+0.5)+130;
 
 	if (turn == 0)
 		target = std::max(11.5*ratio, std::min(26*ratio/(0+abs(error.ang)) + 0, 22*ratio) - 2.5*std::max(0.0, 10-msg->ranges[540]/ratio)*ratio);
