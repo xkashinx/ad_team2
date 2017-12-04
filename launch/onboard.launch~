@@ -1,6 +1,6 @@
 <launch>
 
-<node name="urg_node" pkg="urg_node" type="urg_node" />
+
 <node name="sideWayFinder" pkg="control" type="sideWayFinder" output="log"/>
 <node name="pid_controller" pkg="control" type="pid_controller.py"/>
 <node name="talker" pkg="control" type="talker.py"/>
