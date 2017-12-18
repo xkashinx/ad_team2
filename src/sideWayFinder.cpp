@@ -56,7 +56,6 @@ void linearFit(std::vector<Point> P,double &A,double &B)
 	A = (Sxy-Sx*Sy/N)/(Sxx-Sx*Sx/N);
 	B = Sy/N-A*Sx/N;
 	
-//	ROS_INFO("Xave:%lf Yave:%lf A:%lf B:%lf C:%lf",Xave,Yave,A,B,C);
 }
 void calculateAngleDistance(double A,double B,double &ang, double &dist)
 {
@@ -69,8 +68,6 @@ void calculateAngleDistance(double A,double B,double &ang, double &dist)
 
 void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-//	ROS_INFO("%d",sizeof(msg->ranges));
-	//ROS_INFO("Message received");
 	leftWall.clear();
 	rightWall.clear();
 
@@ -110,9 +107,6 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 			lastPoint = currentPoint;
 		}
 	}
-
-
-	//ROS_INFO("%ld %ld",leftWall.size(),rightWall.size());
 
 	control::sideWay side;
 	control::angleDistanceError error;
@@ -230,7 +224,6 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	
 	double target = 200/(1+p_error)+20;
 
-
 	// set target speed
 	if (turn == 0) // in straight line
 		target = std::max(minMPS*MPSToCmd, std::min(maxMPS*MPSToCmd/(0+0.2*abs(error.ang)) + 0, maxMPS*MPSToCmd) - 0.3*std::max(0.0, 9-msg->ranges[540]/ratio)*MPSToCmd);
@@ -251,7 +244,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	count++;
 	avgSpeed = prevSpeedSum / count;
 	double kph = 3.6*prevSpeed/MPSToCmd;
-	ROS_INFO("\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nindexMax = %i (half=540)\n-----------------\nkm/hour = %5.2lf(km/h)\navgSpeed = %5.2lf(m/s)\ntarget = %5.2lf(m/s)\nmax(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, indexMax, kph, avgSpeed, target/MPSToCmd, 0.3*std::max(0.0, 10-max_range/ratio), velError/MPSToCmd, velChange*50/MPSToCmd, prevSpeed/MPSToCmd, maxRawAngle, maxAngle, turn);
+	ROS_INFO("\n\n\n\n\nerror.ang = %5.2lf(deg)\nerror.dist = %5.2lf(cm)\nmax_range = %5.2lf(m)\nfrontRange = %5.2lf\nindexMax = %i (half=540)\n-----------------\nkm/hour = %5.2lf(km/h)\navgSpeed = %5.2lf(m/s)\ntarget = %5.2lf(m/s)\nmax(0.0, 10-max_range/ratio) = %5.2lf(m/s)\nvelError = %5.2lf (m/s)\nvelChange = %5.2lf(m/s^2)\nprevSpeed = %5.2lf(m/s)\n-----------------\nmaxRawAngle = %5.2lf\nmaxAngle = %5.2lf\nTURN = %i (0:none 1:right -1:left)", error.ang, error.dist/ratio*100, max_range/ratio, msg->ranges[540]/ratio, indexMax, kph, avgSpeed, target/MPSToCmd, 0.3*std::max(0.0, 10-max_range/ratio), velError/MPSToCmd, velChange*50/MPSToCmd, prevSpeed/MPSToCmd, maxRawAngle, maxAngle, turn);
 
 	/**
 	* Team 2 End -------------------------------------------------------------
