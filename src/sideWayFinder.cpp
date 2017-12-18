@@ -8,7 +8,7 @@
 #include "control/pid_input.h"
 #define dataSize (1081)
 #define validSize (150) 
-#define ratio (7.525)//(7.525)
+#define ratio (7.525)//sim(7.525) real(1.0)
 typedef struct
 {
 	double x,y;
@@ -20,7 +20,7 @@ double prevSpeed = 0.0;
 double prevSpeedSum = 0.0;
 int count = 0;
 double avgSpeed = 0.0;
-double MPSToCmd = 75.25; // sim=75.25 real:10%=1m/s -> 10 
+double MPSToCmd = 72.25; // sim(75.25) real:10%=1m/s -> (10.0) 
 double maxMPS = 2.5;
 double minMPS = 1;
 double stopDistance = 1.5; // meters
