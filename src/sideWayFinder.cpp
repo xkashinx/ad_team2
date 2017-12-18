@@ -20,11 +20,10 @@ double prevSpeed = 0.0;
 double prevSpeedSum = 0.0;
 int count = 0;
 double avgSpeed = 0.0;
-int isSim = 1;
-double speedFactor = 0.752;
-double MPSToCmd = 75.25;
+double MPSToCmd = 75.25; // sim=75.25 real:10%=1m/s -> 10 
 double maxMPS = 2.5;
-double minMPS = 1.1;
+double minMPS = 1;
+double stopDistance = 1.5; // meters
 
 Point convertCoord(double range,int index)
 {
@@ -229,6 +228,9 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		target = std::max(minMPS*MPSToCmd, std::min(maxMPS*MPSToCmd/(0+0.2*abs(error.ang)) + 0, maxMPS*MPSToCmd) - 0.3*std::max(0.0, 9-msg->ranges[540]/ratio)*MPSToCmd);
 	else // in corner
 		target = minMPS * MPSToCmd;
+
+	if (msg->ranges[540] < stopDistance*ratio)
+		target = (msg->ranges[540]/ratio)/1.5*MPSToCmd;
 
 	double velError = target - prevSpeed;
 	int sign = 1;
