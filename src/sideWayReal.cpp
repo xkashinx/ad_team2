@@ -24,7 +24,7 @@ double MPSToCmd = 10.0; // sim(75.25) real:10%=1m/s -> (10.0)
 double maxMPS = 2.5;
 double minMPS = 1;
 double stopDistance = 1.5; // meters
-double velThresh = 9;
+double velThresh = 9.5;
 
 Point convertCoord(double range,int index)
 {
@@ -213,7 +213,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		target = minMPS * MPSToCmd;
 
 	if (msg->ranges[540] < stopDistance*ratio)
-		target = (msg->ranges[540]/ratio)/1.5*MPSToCmd;
+		target = -velThresh+1;//target = (msg->ranges[540]/ratio)/1.5*MPSToCmd;
 
 	target += velThresh;
 	double velError = target - prevSpeed;
