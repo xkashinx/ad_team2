@@ -189,7 +189,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
  	}
 
  	maxRawAngle = indexMax * 270/1080.0 - 270/2.0;
- 	maxAngle = maxRawAngle - error.ang;
+ 	maxAngle = maxRawAngle + error.ang;
  	if (maxAngle < 0)
  		turn = 1; // right
  	else
