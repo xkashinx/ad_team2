@@ -185,25 +185,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 		if(abs(msg->ranges[i] - max_range) < 0.0001 * ratio && abs(msg->ranges[i] - msg->ranges[i+1]) > 1.8*ratio) {
 			indexMax =  i;
 			break;
-		}
-		/**
-		// if jump in rage 
-		if (abs(msg->ranges[i] - prevRange) > 1.8*ratio) {
-			// if index for max_range have not found yet
-			if (indexMax == -1) {
-				indexJB = i; // set index of closest jump before max_range
-			} else { // if index of max_range already found, decide right or left turn
-				rightGap = indexMax - indexJB;
-				leftGap = indexJA - indexMax;
-				gapDiff = leftGap - rightGap;
-				if (leftGap != 0 && leftGap > rightGap )
-					turn = 1; // right turn
-				else
-					turn = -1; // left turn
-				break;
-			}
-		}	
-		*/		
+		}		
  	}
 
  	maxRawAngle = indexMax * 270/1080.0 - 270/2.0;
@@ -265,8 +247,8 @@ int main(int argc, char ** argv)
 	ros::init(argc,argv,"side_way_controller");
 	ROS_INFO("Side Way Finder Start");
 	ros::NodeHandle rosHandle;
-	ros::Subscriber sub = rosHandle.subscribe("catvehicle/front_laser_points",100,callback);
-	//ros::Subscriber sub = rosHandle.subscribe("/scan",100,callback);
+	//ros::Subscriber sub = rosHandle.subscribe("catvehicle/front_laser_points",100,callback);
+	ros::Subscriber sub = rosHandle.subscribe("/scan",100,callback);
 	pub = rosHandle.advertise<control::sideWay>("control/sideWay",100);
 	pubError = rosHandle.advertise<control::angleDistanceError>("control/angleDistanceError",100);	
 	pub2Python = rosHandle.advertise<control::pid_input>("control/error",100);
