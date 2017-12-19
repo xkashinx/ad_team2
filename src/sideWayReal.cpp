@@ -173,7 +173,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 			min_range = msg->ranges[i];
 	}
 		
-	if (max_range > 6.5 * ratio) {
+	if (max_range > 8.0 * ratio) {
 		turn = 0; // default no turn or stop the turn mode
 		goto skip;
 	}
@@ -215,7 +215,6 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	if (msg->ranges[540] < stopDistance*ratio)
 		target = -velThresh+1;//target = (msg->ranges[540]/ratio)/1.5*MPSToCmd;
 
-	target += velThresh;
 	double velError = target - prevSpeed;
 	int sign = 1;
 	if (velError < 0)
