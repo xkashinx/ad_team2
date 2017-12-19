@@ -52,7 +52,7 @@ while key != ord('q'):
 	stdscr.refresh()
 #	signal.alarm(0)
 	if key == curses.KEY_UP: 
-		forward = forward + 5;
+		forward = forward + 0.5;
 		stdscr.addstr(2, 20, "Up  ")
 		stdscr.addstr(2, 25, '%.2f' % forward)
 		stdscr.addstr(5, 20, "    ")
