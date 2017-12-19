@@ -182,7 +182,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 	// if expecting turn
 	for(int i = 0; i < 1080; i++) {
 		// index of range_max found
-		if(abs(msg->ranges[i] - max_range) < 0.0001 * ratio && abs(msg->ranges[i] - msg->ranges[i+1]) > 1.8*ratio) {
+		if(abs(msg->ranges[i] - max_range) < 0.0001 * ratio && abs(msg->ranges[i] - msg->ranges[i+1]) > 1.8*ratio && abs(msg->ranges[i] - msg->ranges[i+1]) < 2.8*ratio) {
 			indexMax =  i;
 			break;
 		}		
