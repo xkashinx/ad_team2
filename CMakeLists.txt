@@ -137,6 +137,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(sideWayFinder src/sideWayFinder.cpp)
+add_executable(sideWayReal src/sideWayReal.cpp)
 add_executable(talkerToSim src/talkerToSim.cpp)
 add_executable(spinTest src/spinTest.cpp)
 
@@ -147,6 +148,7 @@ add_executable(spinTest src/spinTest.cpp)
 ## Specify libraries to link a library or executable target against
 
 target_link_libraries(sideWayFinder ${catkin_LIBRARIES})
+target_link_libraries(sideWayReal ${catkin_LIBRARIES})
 target_link_libraries(talkerToSim ${catkin_LIBRARIES})
 target_link_libraries(spinTest ${catkin_LIBRARIES})
 
